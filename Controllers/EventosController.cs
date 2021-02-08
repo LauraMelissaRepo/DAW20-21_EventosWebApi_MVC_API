@@ -24,7 +24,7 @@ namespace EventosWebApi_v1.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Evento>>> GetEventos()
         {
-            return await _context.Eventos.ToListAsync();
+            return await _context.Eventos.Include(y => y.Tipo).Include(x => x.Local).ToListAsync();
         }
 
         // GET: api/Eventos/5
