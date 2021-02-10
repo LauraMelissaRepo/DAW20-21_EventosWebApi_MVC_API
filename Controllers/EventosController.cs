@@ -31,13 +31,19 @@ namespace EventosWebApi_v1.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<Evento>> GetEvento(int id)
         {
+
             var evento = await _context.Eventos.FindAsync(id);
+
+            var local = _context.Locais.FindAsync(evento.LocalId);
+            var tipo = _context.Tipos.FindAsync(evento.TipoId);
+
+            evento.Local = await local;
+            evento.Tipo = await tipo;
 
             if (evento == null)
             {
                 return NotFound();
             }
-
             return evento;
         }
 
@@ -74,7 +80,10 @@ namespace EventosWebApi_v1.Controllers
                 return BadRequest();
             }
 
-            _context.Entry(evento).State = EntityState.Modified;
+            _context.Entry(evento).State = EntityState.Modified;          
+
+            _context.Locais.Update(evento.Local);
+            _context.Tipos.Update(evento.Tipo);
 
             try
             {
@@ -100,8 +109,10 @@ namespace EventosWebApi_v1.Controllers
         [HttpPost]
         public async Task<ActionResult<Evento>> PostEvento(Evento evento)
         {
+
             _context.Eventos.Add(evento);
             await _context.SaveChangesAsync();
+
 
             return CreatedAtAction("GetEvento", new { id = evento.Id }, evento);
         }

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -26,6 +26,8 @@ namespace EventosWebApi_v1.Controllers
         {
             return await _context.Locais.ToListAsync();
         }
+
+     
 
         // GET: api/Locais/5
         [HttpGet("{id}")]
