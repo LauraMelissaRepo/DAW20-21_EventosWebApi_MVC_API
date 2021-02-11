@@ -34,11 +34,11 @@ namespace EventosWebApi_v1.Controllers
 
             var evento = await _context.Eventos.FindAsync(id);
 
-            var local = _context.Locais.FindAsync(evento.LocalId);
-            var tipo = _context.Tipos.FindAsync(evento.TipoId);
+            var local = await _context.Locais.FindAsync(evento.LocalId);
+            var tipo = await _context.Tipos.FindAsync(evento.TipoId);
 
-            evento.Local = await local;
-            evento.Tipo = await tipo;
+            evento.Local = local;
+            evento.Tipo = tipo;
 
             if (evento == null)
             {
@@ -46,6 +46,26 @@ namespace EventosWebApi_v1.Controllers
             }
             return evento;
         }
+
+        //// GET: api/Eventos/5
+        //[HttpGet("{idevento}")]
+        //public async Task<ActionResult<Evento>> GetEventosFavortios(int idevento)
+        //{
+
+        //    var evento = await _context.Eventos.FindAsync(idevento);
+
+        //    var local = await _context.Locais.FindAsync(evento.LocalId);
+        //    var tipo = await _context.Tipos.FindAsync(evento.TipoId);
+
+        //    evento.Local = local;
+        //    evento.Tipo = tipo;
+
+        //    if (evento == null)
+        //    {
+        //        return NotFound();
+        //    }
+        //    return evento;
+        //}
 
         [Route("tipo/{tipoEventoId}/evento/{localId}/local/{data}/data")]
         [HttpGet]
@@ -62,11 +82,16 @@ namespace EventosWebApi_v1.Controllers
             List<Evento> eventosR = new List<Evento>();
             foreach (Evento evento in eventosDoMesmoTipo)
             {
+                var local = await _context.Locais.FindAsync(evento.LocalId);
+                var tipo = await _context.Tipos.FindAsync(evento.TipoId);
                 if (evento.Data.Month == mes)
                 {
+                    evento.Local = local;
+                    evento.Tipo = tipo;
                     eventosR.Add(evento);
                 }
             }
+
             return eventosR;
         }
 
