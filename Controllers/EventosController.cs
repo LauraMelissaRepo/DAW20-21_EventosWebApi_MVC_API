@@ -24,7 +24,7 @@ namespace EventosWebApi_v1.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Evento>>> GetEventos()
         {
-            return await _context.Eventos.Include(y => y.Tipo).Include(x => x.Local).ToListAsync();
+            return await _context.Eventos.Include(y => y.Tipo).Include(x => x.Local).OrderBy(y=> y.Data).ToListAsync();
         }
 
         // GET: api/Eventos/5
@@ -47,10 +47,11 @@ namespace EventosWebApi_v1.Controllers
             return evento;
         }
 
-        [Route("tipo/{tipoEventoId}/evento/{localId}/local/{data}/data")]
-        [HttpGet]
-        public async Task<ActionResult<List<Evento>>> GetEventosFilter(int tipoEventoId, int localId, DateTime data)
+
+        [HttpGet("tipo/{tipoEventoId}/local/{localId}/data/{mes}")]
+        public async Task<ActionResult<List<Evento>>> GetEventosFilter(int tipoEventoId, int localId, String mes)
         {
+            System.Diagnostics.Debug.WriteLine("Tipo de evento recebido->" + tipoEventoId + " local->" + localId + "data->" + mes);
             //ir buscar a localidade através do localId
             List<Local> stringLocalidade = await _context.Locais.Where(l => l.Id == localId).ToListAsync();
 
@@ -61,17 +62,22 @@ namespace EventosWebApi_v1.Controllers
             //têm o mesmo tipoEventoId. ex: guardo todos os eventos do tipo dança
             List<Evento> eventosDoMesmoTipo = await _context.Eventos.Where(et => et.TipoId == tipoEventoId).Where(et => et.Local.Localidade == v).ToListAsync();
 
+            if(eventosDoMesmoTipo.Count() == 0)
+            {
+                return new List<Evento>();
+            }
+
             string id = eventosDoMesmoTipo[0].Titulo.ToString();
 
-            var mes = data.Date.Month; //vou buscar o mês recebido
+            //var mes = data.Date.Month; //vou buscar o mês recebido
 
             List<Evento> eventosR = new List<Evento>();
             
-            foreach (Evento evento in eventosDoMesmoTipo)
+            foreach (Evento evento in eventosDoMesmoTipo.ToList())
             {
                 var local = await _context.Locais.FindAsync(evento.LocalId);
                 var tipo = await _context.Tipos.FindAsync(evento.TipoId);
-                if (evento.Data.Month == mes)
+                if (evento.Data.Month.ToString() == mes)
                 {
                     evento.Local = local;
                     evento.Tipo = tipo;
