@@ -47,39 +47,26 @@ namespace EventosWebApi_v1.Controllers
             return evento;
         }
 
-        //// GET: api/Eventos/5
-        //[HttpGet("{idevento}")]
-        //public async Task<ActionResult<Evento>> GetEventosFavortios(int idevento)
-        //{
-
-        //    var evento = await _context.Eventos.FindAsync(idevento);
-
-        //    var local = await _context.Locais.FindAsync(evento.LocalId);
-        //    var tipo = await _context.Tipos.FindAsync(evento.TipoId);
-
-        //    evento.Local = local;
-        //    evento.Tipo = tipo;
-
-        //    if (evento == null)
-        //    {
-        //        return NotFound();
-        //    }
-        //    return evento;
-        //}
-
         [Route("tipo/{tipoEventoId}/evento/{localId}/local/{data}/data")]
         [HttpGet]
         public async Task<ActionResult<List<Evento>>> GetEventosFilter(int tipoEventoId, int localId, DateTime data)
         {
+            //ir buscar a localidade através do localId
+            List<Local> stringLocalidade = await _context.Locais.Where(l => l.Id == localId).ToListAsync();
+
+            string v = stringLocalidade[0].Localidade.ToString();
+           
+
             //guardar na variavel quais os eventos que
             //têm o mesmo tipoEventoId. ex: guardo todos os eventos do tipo dança
+            List<Evento> eventosDoMesmoTipo = await _context.Eventos.Where(et => et.TipoId == tipoEventoId).Where(et => et.Local.Localidade == v).ToListAsync();
 
-            var eventosDoMesmoTipo = _context.Eventos.Where(et => et.TipoId == tipoEventoId)
-                .Where(el => el.LocalId == localId);
+            string id = eventosDoMesmoTipo[0].Titulo.ToString();
 
             var mes = data.Date.Month; //vou buscar o mês recebido
 
             List<Evento> eventosR = new List<Evento>();
+            
             foreach (Evento evento in eventosDoMesmoTipo)
             {
                 var local = await _context.Locais.FindAsync(evento.LocalId);
@@ -92,7 +79,7 @@ namespace EventosWebApi_v1.Controllers
                 }
             }
 
-            return eventosR;
+            return eventosDoMesmoTipo;
         }
 
         // PUT: api/Eventos/5

@@ -24,10 +24,24 @@ namespace EventosWebApi_v1.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Local>>> GetLocais()
         {
-            return await _context.Locais.ToListAsync();
-        }
+            List<Local> todosLocais = await _context.Locais.ToListAsync();
+            List<Local> fortodosLocais = todosLocais;
+            List<String> locais = new List<String>();
 
-     
+            foreach(Local l in fortodosLocais.ToList())
+            {
+                if(!locais.Contains(l.Localidade))
+                {
+                    locais.Add(l.Localidade.ToString());
+                }
+                else
+                {
+                    todosLocais.Remove(l);
+                }
+            }
+
+            return todosLocais;
+        }   
 
         // GET: api/Locais/5
         [HttpGet("{id}")]
