@@ -6,11 +6,14 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using EventosWebApi_v1.Models;
+using Microsoft.AspNetCore.Authorization;
+using EventosWebApi_v1.Models.Authentication;
 
 namespace EventosWebApi_v1.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    //[Authorize]
     public class EventosController : ControllerBase
     {
         private readonly EventosDbContext _context;
@@ -33,6 +36,8 @@ namespace EventosWebApi_v1.Controllers
         {
 
             var evento = await _context.Eventos.FindAsync(id);
+
+            System.Diagnostics.Debug.WriteLine(evento.LocalId);
 
             var local = await _context.Locais.FindAsync(evento.LocalId);
             var tipo = await _context.Tipos.FindAsync(evento.TipoId);
@@ -91,6 +96,7 @@ namespace EventosWebApi_v1.Controllers
         // PUT: api/Eventos/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
+        //[Authorize(Roles = UserRoles.Admin)]
         public async Task<IActionResult> PutEvento(int id, Evento evento)
         {
             if (id != evento.Id)
@@ -127,6 +133,7 @@ namespace EventosWebApi_v1.Controllers
         // POST: api/Eventos
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
+        //[Authorize(Roles = UserRoles.Admin)]
         public async Task<ActionResult<Evento>> PostEvento(Evento evento)
         {
 
