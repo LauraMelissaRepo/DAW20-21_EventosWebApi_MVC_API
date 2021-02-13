@@ -98,10 +98,12 @@ namespace EventosWebApi_v1.Controllers
                 return BadRequest();
             }
 
-            _context.Entry(evento).State = EntityState.Modified;          
+            _context.Entry(evento).State = EntityState.Modified;
 
-            _context.Locais.Update(evento.Local);
-            _context.Tipos.Update(evento.Tipo);
+            Local local = _context.Locais.Find(evento.LocalId);
+            local.NomeLocal = evento.Local.NomeLocal;
+            local.Morada = evento.Local.Morada;
+            local.Localidade = evento.Local.Localidade;
 
             try
             {
