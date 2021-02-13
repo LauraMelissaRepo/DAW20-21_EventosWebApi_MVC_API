@@ -102,7 +102,7 @@ namespace EventosWebApi_v1.Controllers
             if (id != evento.Id)
             {
                 return BadRequest();
-            }
+            } 
 
             _context.Entry(evento).State = EntityState.Modified;
 
