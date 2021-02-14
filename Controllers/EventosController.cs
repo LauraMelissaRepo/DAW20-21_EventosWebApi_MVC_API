@@ -53,15 +53,41 @@ namespace EventosWebApi_v1.Controllers
         }
 
 
+
+        [HttpGet("tipo/{tipoEventoId}/local/{localId}")]
+        public async Task<ActionResult<List<Evento>>> GetEventosFilterWithoutDate(int tipoEventoId, int localId)
+        {
+            List<Local> stringLocalidade = await _context.Locais.Where(l => l.Id == localId).ToListAsync();
+            string v = stringLocalidade[0].Localidade.ToString();
+
+            List<Evento> eventosDoMesmoTipo = await _context.Eventos.Where(et => et.TipoId == tipoEventoId).Where(et => et.Local.Localidade == v).ToListAsync();
+
+            if (eventosDoMesmoTipo.Count() == 0)
+            {
+                return new List<Evento>();
+            }
+
+            foreach (Evento evento in eventosDoMesmoTipo.ToList())
+            {
+                var local = await _context.Locais.FindAsync(evento.LocalId);
+                var tipo = await _context.Tipos.FindAsync(evento.TipoId);
+               
+                    evento.Local = local;
+                    evento.Tipo = tipo;    
+            }
+
+            return eventosDoMesmoTipo;
+        }
+
+
         [HttpGet("tipo/{tipoEventoId}/local/{localId}/data/{mes}")]
         public async Task<ActionResult<List<Evento>>> GetEventosFilter(int tipoEventoId, int localId, String mes)
         {
-            System.Diagnostics.Debug.WriteLine("Tipo de evento recebido->" + tipoEventoId + " local->" + localId + "data->" + mes);
+            //System.Diagnostics.Debug.WriteLine("Tipo de evento recebido->" + tipoEventoId + " local->" + localId + "data->" + mes);
+
             //ir buscar a localidade através do localId
             List<Local> stringLocalidade = await _context.Locais.Where(l => l.Id == localId).ToListAsync();
-
             string v = stringLocalidade[0].Localidade.ToString();
-           
 
             //guardar na variavel quais os eventos que
             //têm o mesmo tipoEventoId. ex: guardo todos os eventos do tipo dança
@@ -72,11 +98,7 @@ namespace EventosWebApi_v1.Controllers
                 return new List<Evento>();
             }
 
-            string id = eventosDoMesmoTipo[0].Titulo.ToString();
-
-            //var mes = data.Date.Month; //vou buscar o mês recebido
-
-            List<Evento> eventosR = new List<Evento>();
+          
             
             foreach (Evento evento in eventosDoMesmoTipo.ToList())
             {
@@ -86,7 +108,6 @@ namespace EventosWebApi_v1.Controllers
                 {
                     evento.Local = local;
                     evento.Tipo = tipo;
-                    eventosR.Add(evento);
                 }
             }
 
@@ -95,8 +116,9 @@ namespace EventosWebApi_v1.Controllers
 
         // PUT: api/Eventos/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
+
         //[Authorize(Roles = UserRoles.Admin)]
+        [HttpPut("{id}")]
         public async Task<IActionResult> PutEvento(int id, Evento evento)
         {
             if (id != evento.Id)
@@ -131,15 +153,12 @@ namespace EventosWebApi_v1.Controllers
         }
 
         // POST: api/Eventos
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
         //[Authorize(Roles = UserRoles.Admin)]
         public async Task<ActionResult<Evento>> PostEvento(Evento evento)
         {
-
             _context.Eventos.Add(evento);
             await _context.SaveChangesAsync();
-
 
             return CreatedAtAction("GetEvento", new { id = evento.Id }, evento);
         }
