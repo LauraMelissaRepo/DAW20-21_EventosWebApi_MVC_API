@@ -83,8 +83,6 @@ namespace EventosWebApi_v1.Controllers
         [HttpGet("tipo/{tipoEventoId}/local/{localId}/data/{mes}")]
         public async Task<ActionResult<List<Evento>>> GetEventosFilter(int tipoEventoId, int localId, String mes)
         {
-            //System.Diagnostics.Debug.WriteLine("Tipo de evento recebido->" + tipoEventoId + " local->" + localId + "data->" + mes);
-
             //ir buscar a localidade através do localId
             List<Local> stringLocalidade = await _context.Locais.Where(l => l.Id == localId).ToListAsync();
             string v = stringLocalidade[0].Localidade.ToString();
@@ -97,9 +95,7 @@ namespace EventosWebApi_v1.Controllers
             {
                 return new List<Evento>();
             }
-
-          
-            
+ 
             foreach (Evento evento in eventosDoMesmoTipo.ToList())
             {
                 var local = await _context.Locais.FindAsync(evento.LocalId);
@@ -110,7 +106,6 @@ namespace EventosWebApi_v1.Controllers
                     evento.Tipo = tipo;
                 }
             }
-
             return eventosDoMesmoTipo;
         }
 
